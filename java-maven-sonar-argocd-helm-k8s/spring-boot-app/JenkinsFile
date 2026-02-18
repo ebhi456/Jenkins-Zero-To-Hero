@@ -38,15 +38,20 @@ pipeline {
     stage('Static Code Analysis') {
         steps {
             withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                docker.image('maven:3.9.4-eclipse-temurin-17').inside('--rm') {
-                    sh '''
-                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
-                    mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=http://3.222.113.135:9000
-                    '''
+                script { // MUST wrap docker.image().inside() inside script block
+                    docker.image('maven:3.9.4-eclipse-temurin-17').inside('--rm') {
+                        sh '''
+                        cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+                        mvn clean verify sonar:sonar \
+                            -Dsonar.login=$SONAR_AUTH_TOKEN \
+                            -Dsonar.host.url=http://3.222.113.135:9000
+                        '''
+                    }
                 }
             }
         }
     }
+
 
     stage('Build and Push Docker Image') {
       environment {
