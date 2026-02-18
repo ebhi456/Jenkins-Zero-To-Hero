@@ -38,11 +38,13 @@ pipeline {
     stage('Static Code Analysis') {
         steps {
             withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                docker.image('maven:3.8.8-openjdk-17').inside('--rm') {
-                    sh '''
-                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
-                    mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=http://3.222.113.135:9000
-                    '''
+                script{
+                    docker.image('maven:3.8.8-openjdk-17').inside('--rm') {
+                        sh '''
+                        cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=http://3.222.113.135:9000
+                        '''
+                    }
                 }
             }
         }
